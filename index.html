@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi Charly 🍼</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f4f7;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        h1, h2 { text-align: center; color: #333; margin-top: 0; }
+        .timer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #2b6cb0;
+            margin: 10px 0;
+        }
+        .sub-info { text-align: center; color: #718096; font-size: 0.9rem; margin-bottom: 10px; }
+        .pause-btn {
+            background-color: #edf2f7;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .pause-btn.paused {
+            background-color: #feebc8;
+            color: #c05621;
+            border-color: #fbd38d;
+        }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; color: #4a5568; font-size: 0.9rem; }
+        input, select, button, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        textarea { resize: vertical; height: 60px; font-family: inherit; }
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .checkbox-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            background: #f7fafc;
+            cursor: pointer;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        .checkbox-btn input { width: auto; margin: 0; }
+        button.add-btn {
+            background-color: #4299e1;
+            color: white;
+            font-weight: bold;
+            border: none;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        button.add-btn:active { background-color: #3182ce; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li {
+            padding: 12px 0;
+            border-bottom: 1px solid #edf2f7;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: #2d3748;
+        }
+        .li-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+        .li-details {
+            font-size: 0.85rem;
+            color: #718096;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .li-note {
+            font-size: 0.85rem;
+            color: #4a5568;
+            font-style: italic;
+            background: #f7fafc;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-top: 4px;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0 4px;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Suivi Charly 🍼</h1>
+        <div class="timer" id="timerDisplay">00:00:00</div>
+        <div class="sub-info" id="heureRappelInfo">Chargement du rappel...</div>
+        <button id="togglePauseBtn" class="pause-btn">⏸️ Mettre en pause le suivi</button>
+    </div>
+
+    <div class="card">
+        <h2>Ajouter un biberon</h2>
+        
+        <div class="form-group">
+            <label for="heureInput">Heure de la prise</label>
+            <input type="time" id="heureInput">
+        </div>
+
+        <div class="form-group">
+            <label for="laitInput">Type de lait</label>
+            <select id="laitInput">
+                <option value="infantile" selected>Lait infantile</option>
+                <option value="maternel">Lait maternel</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="mlInput">Quantité (ml)</label>
+            <input type="number" id="mlInput" placeholder="Ex: 120" value="120">
+        </div>
+
+        <div class="form-group">
+            <label for="delaiInput">Prochain biberon dans :</label>
+            <select id="delaiInput">
+                <option value="2">2h00</option>
+                <option value="2.5">2h30</option>
+                <option value="3" selected>3h00</option>
+                <option value="3.5">3h30</option>
+                <option value="4">4h00</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Couche / Transit</label>
+            <div class="checkbox-group">
+                <label class="checkbox-btn">
+                    <input type="checkbox" id="pipiInput"> 💧 Pipi
+                </label>
+                <label class="checkbox-btn">
+                    <input type="checkbox" id="cacaInput"> 💩 Caca
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="noteInput">Petit mot / Remarque</label>
+            <textarea id="noteInput" placeholder="Ex: Bien bu, un peu de régurgitation..."></textarea>
+        </div>
+
+        <button class="add-btn" id="addBtn">Valider le biberon</button>
+    </div>
+
+    <div class="card">
+        <h2>Derniers biberons</h2>
+        <ul id="bibList"></ul>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const p1 = "AIzaSyC2GwbLnmI9tO";
+        const p2 = "0JZNrsr6GVhc8D2ElQzMY";
+
+        const firebaseConfig = {
+          apiKey: p1 + p2,
+          authDomain: "suivi-charly-ab0a1.firebaseapp.com",
+          databaseURL: "https://suivi-charly-ab0a1-default-rtdb.firebaseio.com",
+          projectId: "suivi-charly-ab0a1",
+          storageBucket: "suivi-charly-ab0a1.firebasestorage.app",
+          messagingSenderId: "73800798044",
+          appId: "1:73800798044:web:11330074701f9e4ff83b99"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let timerInterval = null;
+        let targetTime = null;
+        let isPaused = false;
+
+        function setHeureActuelle() {
+          const now = new Date();
+          const hh = String(now.getHours()).padStart(2, '0');
+          const mm = String(now.getMinutes()).padStart(2, '0');
+          document.getElementById('heureInput').value = `${hh}:${mm}`;
+        }
+        setHeureActuelle();
+
+        if ("Notification" in window && Notification.permission !== "granted") {
+          Notification.requestPermission();
+        }
+
+        const laitSelect = document.getElementById('laitInput');
+        const delaiSelect = document.getElementById('delaiInput');
+
+        laitSelect.addEventListener('change', () => {
+          if (laitSelect.value === 'maternel') {
+            delaiSelect.value = "2";
+            delaiSelect.disabled = true;
+          } else {
+            delaiSelect.disabled = false;
+            delaiSelect.value = "3";
+          }
+        });
+
+        // Écouter l'état de pause et de rappel
+        db.ref('prochainRappel').on('value', (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            targetTime = data.timestamp;
+            isPaused = !!data.paused;
+            majInterfacePause();
+            if (!isPaused) {
+              lancerTimerVisuel();
+            }
+          }
+        });
+
+        const togglePauseBtn = document.getElementById('togglePauseBtn');
+        togglePauseBtn.addEventListener('click', () => {
+          isPaused = !isPaused;
+          db.ref('prochainRappel').update({ paused: isPaused });
+        });
+
+        function majInterfacePause() {
+          if (isPaused) {
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('timerDisplay').textContent = "PAUSE ⏸️";
+            document.getElementById('heureRappelInfo').textContent = "Suivi actuellement en pause";
+            togglePauseBtn.textContent = "▶️ Reprendre le suivi";
+            togglePauseBtn.classList.add('paused');
+          } else {
+            togglePauseBtn.textContent = "⏸️ Mettre en pause le suivi";
+            togglePauseBtn.classList.remove('paused');
+            lancerTimerVisuel();
+          }
+        }
+
+        function lancerTimerVisuel() {
+          if (timerInterval) clearInterval(timerInterval);
+          if (isPaused || !targetTime) return;
+
+          timerInterval = setInterval(() => {
+            const maintenant = Date.now();
+            const tempsRestant = targetTime - maintenant;
+
+            if (tempsRestant <= 0) {
+              clearInterval(timerInterval);
+              document.getElementById('timerDisplay').textContent = "00:00:00";
+              document.getElementById('heureRappelInfo').textContent = "C'est l'heure du biberon !";
+              declencherAlerteRappel();
+            } else {
+              const heures = Math.floor(tempsRestant / (1000 * 60 * 60));
+              const minutes = Math.floor((tempsRestant % (1000 * 60 * 60)) / (1000 * 60));
+              const secondes = Math.floor((tempsRestant % (1000 * 60)) / 1000);
+
+              document.getElementById('timerDisplay').textContent = 
+                `${String(heures).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secondes).padStart(2, '0')}`;
+              
+              const dateProchain = new Date(targetTime);
+              document.getElementById('heureRappelInfo').textContent = 
+                `Rappel prévu à ${dateProchain.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            }
+          }, 1000);
+        }
+
+        function declencherAlerteRappel() {
+          if (isPaused) return;
+
+          if ("vibrate" in navigator) {
+            navigator.vibrate([1000, 500, 1000, 500, 1000]);
+          }
+
+          if ("Notification" in window && Notification.permission === "granted") {
+            new Notification("🍼 C'est l'heure du biberon !", {
+              body: "Le délai choisi est écoulé. Charly a sûrement faim !"
+            });
+          }
+        }
+
+        document.getElementById('addBtn').addEventListener('click', () => {
+          const ml = document.getElementById('mlInput').value;
+          const delaiHeures = parseFloat(delaiSelect.value);
+          const heureSaisie = document.getElementById('heureInput').value;
+          const typeLait = laitSelect.value;
+          const pipi = document.getElementById('pipiInput').checked;
+          const caca = document.getElementById('cacaInput').checked;
+          const note = document.getElementById('noteInput').value.trim();
+
+          if (!ml || !heureSaisie) return;
+
+          const now = new Date();
+          const dateStr = now.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+
+          const [h, m] = heureSaisie.split(':');
+          const heurePriseDate = new Date();
+          heurePriseDate.setHours(parseInt(h), parseInt(m), 0, 0);
+
+          const timestampProchainBib = heurePriseDate.getTime() + (delaiHeures * 60 * 60 * 1000);
+
+          db.ref('biberons').push({
+            quantite: ml,
+            heure: heureSaisie,
+            date: dateStr,
+            typeLait: typeLait,
+            pipi: pipi,
+            caca: caca,
+            note: note,
+            timestamp: Date.now()
+          });
+
+          // Si le timer était en pause, la validation d'un nouveau biberon peut le relancer automatiquement
+          db.ref('prochainRappel').set({
+            timestamp: timestampProchainBib,
+            delai: delaiHeures,
+            paused: false
+          });
+
+          document.getElementById('noteInput').value = '';
+          document.getElementById('pipiInput').checked = false;
+          document.getElementById('cacaInput').checked = false;
+          setHeureActuelle();
+        });
+
+        function supprimerLigne(key) {
+          if (confirm("Supprimer cette ligne ?")) {
+            db.ref('biberons').child(key).remove();
+          }
+        }
+
+        db.ref('biberons').limitToLast(15).on('value', (snapshot) => {
+          const list = document.getElementById('bibList');
+          list.innerHTML = '';
+          const data = snapshot.val();
+
+          if (data) {
+            Object.keys(data).reverse().forEach(key => {
+              const item = data[key];
+              const li = document.createElement('li');
+
+              const transitText = [
+                item.pipi ? '💧 Pipi' : '',
+                item.caca ? '💩 Caca' : ''
+              ].filter(Boolean).join(' • ');
+
+              const typeLaitTexte = item.typeLait === 'maternel' ? '🤱 Maternel' : '🍼 Infantile';
+
+              li.innerHTML = `
+                <div class="li-header">
+                  <span><b>${item.heure}</b> (${item.date}) — <b>${item.quantite} ml</b></span>
+                  <button class="delete-btn" onclick="supprimerLigne('${key}')">🗑️</button>
+                </div>
+                <div class="li-details">
+                  <span>${typeLaitTexte}</span>
+                  ${transitText ? `<span>| ${transitText}</span>` : ''}
+                </div>
+                ${item.note ? `<div class="li-note">« ${item.note} »</div>` : ''}
+              `;
+              list.appendChild(li);
+            });
+          }
+        });
+    </script>
+</body>
+</html>
