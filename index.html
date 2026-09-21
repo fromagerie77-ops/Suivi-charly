@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi Charly 🍼</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f4f7;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        h1, h2 { text-align: center; color: #333; margin-top: 0; }
+        .timer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #2b6cb0;
+            margin: 10px 0;
+        }
+        .sub-info { text-align: center; color: #718096; font-size: 0.9rem; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; color: #4a5568; font-size: 0.9rem; }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #4299e1;
+            color: white;
+            font-weight: bold;
+            border: none;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        button:active { background-color: #3182ce; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li {
+            padding: 10px 0;
+            border-bottom: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Suivi Charly 🍼</h1>
+        <div class="timer" id="timerDisplay">00:00:00</div>
+        <div class="sub-info" id="heureRappelInfo">Chargement du rappel...</div>
+    </div>
+
+    <div class="card">
+        <h2>Ajouter un biberon</h2>
+        <div class="form-group">
+            <label for="mlInput">Quantité (ml)</label>
+            <input type="number" id="mlInput" placeholder="Ex: 120" value="120">
+        </div>
+        <div class="form-group">
+            <label for="delaiInput">Prochain biberon dans :</label>
+            <select id="delaiInput">
+                <option value="2.5">2h30</option>
+                <option value="3" selected>3h00</option>
+                <option value="3.5">3h30</option>
+                <option value="4">4h00</option>
+            </select>
+        </div>
+        <button id="addBtn">Valider le biberon</button>
+    </div>
+
+    <div class="card">
+        <h2>Derniers biberons</h2>
+        <ul id="bibList"></ul>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
