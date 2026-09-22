@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi Charly 🍼</title>
+    <link rel="apple-touch-icon" href="https://fav.farm/🍼">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f4f7;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        h1, h2 { text-align: center; color: #333; margin-top: 0; }
+        .timer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #2b6cb0;
+            margin: 10px 0;
+        }
+        .sub-info { text-align: center; color: #718096; font-size: 0.9rem; margin-bottom: 10px; }
+        .pause-btn {
+            background-color: #edf2f7;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .pause-btn.paused {
+            background-color: #feebc8;
+            color: #c05621;
+            border-color: #fbd38d;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .summary-item {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-value { font-size: 1.2rem; font-weight: bold; color: #2b6cb0; }
+        .summary-label { font-size: 0.8rem; color: #718096; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; color: #4a5568; font-size: 0.9rem; }
+        input, select, button, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        textarea { resize: vertical; height: 60px; font-family: inherit; }
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .checkbox-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            background: #f7fafc;
+            cursor: pointer;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        .checkbox-btn input { width: auto; margin: 0; }
+        button.add-btn {
+            background-color: #4299e1;
+            color: white;
+            font-weight: bold;
+            border: none;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        button.add-btn:active { background-color: #3182ce; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li {
+            padding: 12px 0;
+            border-bottom: 1px solid #edf2f7;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: #2d3748;
+        }
+        .li-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+        .li-actions { display: flex; gap: 6px; }
+        .li-details {
+            font-size: 0.85rem;
+            color: #718096;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .li-note {
+            font-size: 0.85rem;
+            color: #4a5568;
+            font-style: italic;
+            background: #f7fafc;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-top: 4px;
+        }
+        .action-btn {
+            background: #edf2f7;
+            border: 1px solid #cbd5e0;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            width: auto;
+        }
+        .action-btn.delete {
+            background: #fed7d7;
+            border-color: #feb2b2;
+            color: #9b2c2c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Suivi Charly 🍼</h1>
+        <div class="timer" id="timerDisplay">00:00:00</div>
+        <div class="sub-info" id="heureRappelInfo">Chargement du rappel...</div>
+        <button id="togglePauseBtn" class="pause-btn">⏸️ Mettre en pause le suivi</button>
+    </div>
+
+    <div class="card">
+        <h2>Résumé des 24h</h2>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-value" id="sumBibs">0</div>
+                <div class="summary-label">Biberons</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="sumMl">0 ml</div>
+                <div class="summary-label">Quantité totale</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="sumPipi">0</div>
+                <div class="summary-label">💧 Pipis</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="sumCaca">0</div>
+                <div class="summary-label">💩 Cacas</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Ajouter un biberon</h2>
+        
+        <div class="form-group">
+            <label for="heureInput">Heure de la prise</label>
+            <input type="time" id="heureInput">
+        </div>
+
+        <div class="form-group">
+            <label for="laitInput">Type de lait</label>
+            <select id="laitInput">
+                <option value="infantile" selected>Lait infantile</option>
+                <option value="maternel">Lait maternel</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="mlInput">Quantité (ml)</label>
+            <input type="number" id="mlInput" placeholder="Ex: 120" value="120">
+        </div>
+
+        <div class="form-group">
+            <label for="delaiInput">Prochain biberon dans :</label>
+            <select id="delaiInput">
+                <option value="2">2h00</option>
+                <option value="2.5">2h30</option>
+                <option value="3" selected>3h00</option>
+                <option value="3.5">3h30</option>
+                <option value="4">4h00</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Couche / Transit</label>
+            <div class="checkbox-group">
+                <label class="checkbox-btn">
+                    <input type="checkbox" id="pipiInput"> 💧 Pipi
+                </label>
+                <label class="checkbox-btn">
+                    <input type="checkbox" id="cacaInput"> 💩 Caca
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="noteInput">Petit mot / Remarque</label>
+            <textarea id="noteInput" placeholder="Ex: Bien bu, un peu de régurgitation..."></textarea>
+        </div>
+
+        <button class="add-btn" id="addBtn">Valider le biberon</button>
+    </div>
+
+    <div class="card">
+        <h2>Derniers biberons</h2>
+        <ul id="bibList"></ul>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        var p1 = "AIzaSyC2GwbLnmI9tO";
+        var p2 = "0JZNrsr6GVhc8D2ElQzMY";
+
+        var firebaseConfig = {
+          apiKey: p1 + p2,
+          authDomain: "suivi-charly-ab0a1.firebaseapp.com",
+          databaseURL: "https://suivi-charly-ab0a1-default-rtdb.firebaseio.com",
+          projectId: "suivi-charly-ab0a1",
+          storageBucket: "suivi-charly-ab0a1.firebasestorage.app",
+          messagingSenderId: "73800798044",
+          appId: "1:73800798044:web:11330074701f9e4ff83b99"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        var db = firebase.database();
+
+        var timerInterval = null;
+        var targetTime = null;
+        var isPaused = false;
+        var biberonsData = {};
+
+        function setHeureActuelle() {
+          var now = new Date();
+          var hh = String(now.getHours()).padStart(2, '0');
+          var mm = String(now.getMinutes()).padStart(2, '0');
+          document.getElementById('heureInput').value = hh + ":" + mm;
+        }
+        setHeureActuelle();
+
+        var laitSelect = document.getElementById('laitInput');
+        var delaiSelect = document.getElementById('delaiInput');
+
+        laitSelect.addEventListener('change', function() {
+          if (laitSelect.value === 'maternel') {
+            delaiSelect.value = "2";
+            delaiSelect.disabled = true;
+          } else {
+            delaiSelect.disabled = false;
+            delaiSelect.value = "3";
+          }
+        });
+
+        db.ref('prochainRappel').on('value', function(snapshot) {
+          var data = snapshot.val();
+          if (data) {
+            targetTime = data.timestamp;
+            isPaused = !!data.paused;
+            majInterfacePause();
+            if (!isPaused) {
+              lancerTimerVisuel();
+            }
+          }
+        });
+
+        var togglePauseBtn = document.getElementById('togglePauseBtn');
+        togglePauseBtn.addEventListener('click', function() {
+          isPaused = !isPaused;
+          db.ref('prochainRappel').update({ paused: isPaused });
+        });
+
+        function majInterfacePause() {
+          if (isPaused) {
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('timerDisplay').textContent = "PAUSE ⏸️";
+            document.getElementById('heureRappelInfo').textContent = "Suivi actuellement en pause";
+            togglePauseBtn.textContent = "▶️ Reprendre le suivi";
+            togglePauseBtn.classList.add('paused');
+          } else {
+            togglePauseBtn.textContent = "⏸️ Mettre en pause le suivi";
+            togglePauseBtn.classList.remove('paused');
+            lancerTimerVisuel();
+          }
+        }
+
+        function lancerTimerVisuel() {
+          if (timerInterval) clearInterval(timerInterval);
+          if (isPaused || !targetTime) return;
+
+          timerInterval = setInterval(function() {
+            var maintenant = Date.now();
+            var tempsRestant = targetTime - maintenant;
+
+            if (tempsRestant <= 0) {
+              clearInterval(timerInterval);
+              document.getElementById('timerDisplay').textContent = "00:00:00";
+              document.getElementById('heureRappelInfo').textContent = "C'est l'heure du biberon !";
+            } else {
+              var heures = Math.floor(tempsRestant / (1000 * 60 * 60));
+              var minutes = Math.floor((tempsRestant % (1000 * 60 * 60)) / (1000 * 60));
+              var secondes = Math.floor((tempsRestant % (1000 * 60)) / 1000);
+
+              document.getElementById('timerDisplay').textContent = 
+                String(heures).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(secondes).padStart(2, '0');
+              
+              var dateProchain = new Date(targetTime);
+              document.getElementById('heureRappelInfo').textContent = 
+                "Rappel prévu à " + dateProchain.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+          }, 1000);
+        }
+
+        document.getElementById('addBtn').addEventListener('click', function() {
+          var ml = document.getElementById('mlInput').value;
+          var delaiHeures = parseFloat(delaiSelect.value);
+          var heureSaisie = document.getElementById('heureInput').value;
+          var typeLait = laitSelect.value;
+          var pipi = document.getElementById('pipiInput').checked;
+          var caca = document.getElementById('cacaInput').checked;
+          var note = document.getElementById('noteInput').value.trim();
+
+          if (!ml || !heureSaisie) return;
+
+          var now = new Date();
+          var dateStr = now.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+
+          var parts = heureSaisie.split(':');
+          var heurePriseDate = new Date();
+          heurePriseDate.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+
+          var timestampProchainBib = heurePriseDate.getTime() + (delaiHeures * 60 * 60 * 1000);
+
+          db.ref('biberons').push({
+            quantite: parseInt(ml),
+            heure: heureSaisie,
+            date: dateStr,
+            typeLait: typeLait,
+            pipi: pipi,
+            caca: caca,
+            note: note,
+            timestamp: Date.now()
+          });
+
+          db.ref('prochainRappel').set({
+            timestamp: timestampProchainBib,
+            delai: delaiHeures,
+            paused: false
+          });
+
+          document.getElementById('noteInput').value = '';
+          document.getElementById('pipiInput').checked = false;
+          document.getElementById('cacaInput').checked = false;
+          setHeureActuelle();
+        });
+
+        window.supprimerLigne = function(key) {
+          if (confirm("Supprimer cette ligne ?")) {
+            db.ref('biberons').child(key).remove();
+          }
+        };
+
+        window.modifierLigne = function(key) {
+          var item = biberonsData[key];
+          if (!item) return;
+
+          var nHeure = prompt("Heure (HH:MM) :", item.heure || "");
+          if (nHeure === null) return;
+
+          var nMl = prompt("Quantité (ml) :", item.quantite || "");
+          if (nMl === null) return;
+
+          var nNote = prompt("Remarque / Petit mot :", item.note || "");
+          if (nNote === null) return;
+
+          db.ref('biberons').child(key).update({
+            heure: nHeure,
+            quantite: parseInt(nMl) || 0,
+            note: nNote.trim()
+          });
+        };
+
+        db.ref('biberons').on('value', function(snapshot) {
+          var list = document.getElementById('bibList');
+          list.innerHTML = '';
+          biberonsData = snapshot.val() || {};
+
+          var maintenant = Date.now();
+          var limite24h = maintenant - (24 * 60 * 60 * 1000);
+
+          var totalBibs = 0;
+          var totalMl = 0;
+          var totalPipi = 0;
+          var totalCaca = 0;
+
+          if (biberonsData) {
+            var keys = Object.keys(biberonsData).reverse();
+
+            keys.forEach(function(key) {
+              var item = biberonsData[key];
+
+              if (item.timestamp && item.timestamp >= limite24h) {
+                totalBibs++;
+                totalMl += parseInt(item.quantite) || 0;
+                if (item.pipi) totalPipi++;
+                if (item.caca) totalCaca++;
+              }
+
+              if (list.children.length < 15) {
+                var li = document.createElement('li');
+                
+                var transitArray = [];
+                if (item.pipi) transitArray.push('💧 Pipi');
+                if (item.caca) transitArray.push('💩 Caca');
+                var transitText = transitArray.join(' • ');
+
+                var typeLaitTexte = item.typeLait === 'maternel' ? '🤱 Maternel' : '🍼 Infantile';
+
+                var noteHtml = item.note ? '<div class="li-note">« ' + item.note + ' »</div>' : '';
+                var transitHtml = transitText ? '<span>| ' + transitText + '</span>' : '';
+
+                li.innerHTML = 
+                  '<div class="li-header">' +
+                    '<span><b>' + (item.heure || '') + '</b> (' + (item.date || '') + ') — <b>' + (item.quantite || 0) + ' ml</b></span>' +
+                    '<div class="li-actions">' +
+                      '<button class="action-btn" onclick="modifierLigne(\'' + key + '\')">✏️</button>' +
+                      '<button class="action-btn delete" onclick="supprimerLigne(\'' + key + '\')">🗑️</button>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="li-details">' +
+                    '<span>' + typeLaitTexte + '</span>' +
+                    transitHtml +
+                  '</div>' +
+                  noteHtml;
+
+                list.appendChild(li);
+              }
+            });
+          }
+
+          document.getElementById('sumBibs').textContent = totalBibs;
+          document.getElementById('sumMl').textContent = totalMl + " ml";
+          document.getElementById('sumPipi').textContent = totalPipi;
+          document.getElementById('sumCaca').textContent = totalCaca;
+        });
+    </script>
+</body>
+</html>
